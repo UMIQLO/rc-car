@@ -8,7 +8,11 @@ import android.support.v7.app.AppCompatActivity
 import android.view.SurfaceHolder
 import android.view.View
 import kotlinx.android.synthetic.main.activity_control.*
-import java.io.*
+import moe.car.remotecontrol.util.connectSocket
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.Socket
 import java.net.URL
@@ -31,7 +35,7 @@ class ControlActivity : AppCompatActivity(), View.OnClickListener, SurfaceHolder
     }
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-        connectToCamera(holder)
+        //connectToCamera(holder)
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder?) {
@@ -40,26 +44,26 @@ class ControlActivity : AppCompatActivity(), View.OnClickListener, SurfaceHolder
 
     override fun surfaceCreated(holder: SurfaceHolder?) {
         runFlag = true
-        connectToCamera(holder)
+        //connectToCamera(holder)
     }
 
     // Global onClick
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.btnUp -> {
-                controlCar("a")
+                controlCar("MD_Qian")
             }
             R.id.btnDown -> {
-                controlCar("b")
+                controlCar("MD_Hou")
             }
             R.id.btnLeft -> {
-                controlCar("c")
+                controlCar("MD_Zuo")
             }
             R.id.btnRight -> {
-                controlCar("d")
+                controlCar("MD_You")
             }
             R.id.btnStop -> {
-                controlCar("e")
+                controlCar("MD_Ting")
             }
         }
     }
@@ -94,6 +98,7 @@ class ControlActivity : AppCompatActivity(), View.OnClickListener, SurfaceHolder
                         image = Bitmap.createBitmap(image)
 
                         c?.drawBitmap(image, 0f, 0f, null)
+                        conn.disconnect()
 
                         Thread.sleep(40)
                     }
@@ -108,25 +113,7 @@ class ControlActivity : AppCompatActivity(), View.OnClickListener, SurfaceHolder
 
     private fun controlCar(order: String) {
         Thread(Runnable {
-            val socket = Socket("192.168.8.1", 2001)
-            println("${socket.isConnected} / $order")
-            if (socket.isConnected) {
-
-                val inputStream: InputStream = socket.getInputStream()
-                val isr = InputStreamReader(inputStream)
-                val br = BufferedReader(isr)
-                br.readLine()
-
-                val outputStream: OutputStream = socket.getOutputStream()
-
-                val printWriter = PrintWriter(outputStream, true)
-                printWriter.print(order)
-                printWriter.flush()
-
-                outputStream.close()
-                br.close()
-                socket.close()
-            }
+            connectSocket("192.168.9.6", 2001, order)
         }).start()
     }
 
